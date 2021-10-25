@@ -1,1 +1,582 @@
+Skip to content
+Simplified Coding
+Simplified Coding
+ Menu
+turn on flashlight android
+Turn on Flashlight Android – Building a Torch App
+July 29, 2018 by Belal Khan
 
+ 
+Hey everyone, this is a tutorial for the newbies, the people just started getting there hands dirty on android coding. I thought I would post some small apps tutorial for you all, so that you can enjoy the learning. Today, in this post we will learn how to Turn on Flashlight in Android using Code. As the title says “Turn on Flashlight Android – Building a Torch App”, so we are going to build a simple torch application today.
+
+Contents [hide]
+
+1 Torch Application Android Project
+2 Creating Interface
+3 Adding Feature in Manifest
+4 Building Basic Code Structure
+5 Checking if Flash is Available
+6 Getting Camera Manager
+7 Turn on Flashlight Android
+Torch Application Android Project
+The first thing, as always we need our new project. So open Android Studio and create a new project with an Empty Activity.
+turn on flashlight android
+Turn On Flashlight Android
+Make sure you select API 23, as the minimum API. This is because the API that we are going to use is available on API 23 and later only, and the older one is deprecated. So to make things clean and easy to understand we are targeting only API 23 and later.
+Creating Interface
+Here you can play with the design, you can put nice images and you can make your screen look awesome. But the fun part is I am not going to bother about design, and yes I will create probably the worse UI. haha .
+So come inside activity_main.xml and write the following code.
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+ 
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+ 
+    <ToggleButton
+        android:id="@+id/toggleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ToggleButton"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+ 
+</android.support.constraint.ConstraintLayout>
+ 
+The above XML will give you the following output. We only have a ToggleButton that we will use to turn on or off the android flash light.
+turn on flashlight android
+Turn on Flashlight Android
+So here we have one of the worse UI design of all time. 😉 LOL. Design if you want, or lets dive into adding the functionality.
+Adding Feature in Manifest
+As we are going to build a Torch application, and basically we want to programmatically turn on the flashlight of our android device. To do this we need to access this feature of android.
+So come inside AndroidManifest.xml and add the line shown below.
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+ 
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="net.simplifiedcoding.mytorch">
+ 
+    <!-- add this line that means our application will be using the device flash -->
+    <uses-feature android:name="android.hardware.camera.flash" />
+ 
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+ 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+ 
+</manifest>
+ 
+
+ 
+Building Basic Code Structure
+We don’t have much to do, we only have a ToggleButton where we need to attach a listener to listen for the on and off events. To do this we will write the following code.
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+ 
+public class MainActivity extends AppCompatActivity {
+ 
+    private ToggleButton toggleButton;
+ 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+ 
+ 
+        toggleButton = findViewById(R.id.toggleButton);
+ 
+        toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+               //called when the button status is changed           
+ 
+            }
+        });
+    }
+ 
+Checking if Flash is Available
+Now let’s write some java code. When our application will enter the onCreate() method, first we will check if the device has a flash light or not. If the device do not have flashlight we will quit the application saying the flash is not available.
+So our onCreate() method will be like this.
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+ 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+ 
+        boolean isFlashAvailable = getApplicationContext().getPackageManager()
+                .hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+ 
+        if (!isFlashAvailable) {
+            showNoFlashError();
+        }
+ 
+        toggleButton = findViewById(R.id.toggleButton);
+ 
+        toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                
+            }
+        });
+    }
+ 
+We are calling the method showNoFlashError() that you can define as below.
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+ 
+    public void showNoFlashError() {
+        AlertDialog alert = new AlertDialog.Builder(this)
+                .create();
+        alert.setTitle("Oops!");
+        alert.setMessage("Flash not available in this device...");
+        alert.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+        alert.show();
+    }
+ 
+Getting Camera Manager
+Now we need CameraManager, and a String for the Camera Id, as most devices has multiple cameras.
+1
+2
+3
+4
+5
+ 
+public class MainActivity extends AppCompatActivity {
+    private CameraManager mCameraManager;
+    private String mCameraId;
+ 
+Now inside onCreate() we will get the CameraManager and Camera Id.
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+ 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+ 
+        boolean isFlashAvailable = getApplicationContext().getPackageManager()
+                .hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+ 
+        if (!isFlashAvailable) {
+            showNoFlashError();
+        }
+ 
+        //getting the camera manager and camera id
+        mCameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+        try {
+            mCameraId = mCameraManager.getCameraIdList()[0];
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+ 
+        toggleButton = findViewById(R.id.toggleButton);
+ 
+        toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                //we will call this method to switch the flash
+                switchFlashLight(isChecked);
+            }
+        });
+    }
+ 
+This time you can also see that inside the ToggleButton Listener we are calling a method named switchFlashLight() and we are passing the isChecked boolean variable to this method which tells the current state of the Toggle Button, whether it is On or Off.
+This method switchFlashLight() will do the actual task so let’s define it.
+Turn on Flashlight Android
+The code is very simple only a single line as we already defined the required objects.
+1
+2
+3
+4
+5
+6
+7
+8
+9
+ 
+    public void switchFlashLight(boolean status) {
+        try {
+            mCameraManager.setTorchMode(mCameraId, status);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }
+ 
+Now you can try running your application.
+If you are having any confusions, then here is the full code of our MainActivity.java.
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+ 
+package net.simplifiedcoding.mytorch;
+ 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraManager;
+import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.widget.CompoundButton;
+import android.widget.ToggleButton;
+ 
+public class MainActivity extends AppCompatActivity {
+ 
+ 
+    private CameraManager mCameraManager;
+    private String mCameraId;
+ 
+    private ToggleButton toggleButton;
+ 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+ 
+        boolean isFlashAvailable = getApplicationContext().getPackageManager()
+                .hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+ 
+        if (!isFlashAvailable) {
+            showNoFlashError();
+        }
+ 
+ 
+        mCameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+        try {
+            mCameraId = mCameraManager.getCameraIdList()[0];
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+ 
+        toggleButton = findViewById(R.id.toggleButton);
+ 
+        toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                switchFlashLight(isChecked);
+            }
+        });
+    }
+ 
+    public void showNoFlashError() {
+        AlertDialog alert = new AlertDialog.Builder(this)
+                .create();
+        alert.setTitle("Oops!");
+        alert.setMessage("Flash not available in this device...");
+        alert.setButton(DialogInterface.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+        alert.show();
+    }
+ 
+    public void switchFlashLight(boolean status) {
+        try {
+            mCameraManager.setTorchMode(mCameraId, status);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }
+}
+ 
+So that is all for this Turn On Flashlight Android tutorial guys. I hope you found it helpful. If you have any query, just leave that in the comment section below. And don’t forget to share this post with android newbies. Thank You 🙂
+
+ 
+ 
+belal khan profile
+Belal Khan
+Hi, my name is Belal Khan and I am a Google Developers Expert (GDE) for Android. The passion of teaching made me create this blog. If you are an Android Developer, or you are learning about Android Development, then I can help you a lot with Simplified Coding.
+
+Checkout these tutorials as well:
+Android Upload File to Server with Progress using Retrofit
+Android MVVM Tutorial - Build an App using MVVM Design Pattern
+Android AsyncTask is Deprecated: Here's another way
+Circular Progress Bar Android Tutorial [4 Easy Steps]
+QR Code Reader Android Kotlin Tutorial using ML Kit
+Android Push Notification Tutorial using FCM HTTP V1
+CategoriesAndroid Application Development, Android Beginners
+Tagsturn on flashlight android
+Post navigation
+Android Room Database Example – Building a Todo App
+Android Paging Library Tutorial using Retrofit
+
+ 
+Leave a Comment
+Comment
+
+Name
+Name *
+Email
+Email *
+ Save my name, email, and website in this browser for the next time I comment.
+
+Search
+Search for:
+Search …
+ 
+
+
+ 
+
+
+subscribe to simplified codings youtube channel
+
+About Me
+Belal Khan
+Hi my name is Belal Khan and I am a Google Developers Expert for Android Development. Teaching is my passion and because of this passion I created Simplified Coding. I love to share my knowledge and help other devs. You can read more about me here.
+
+Popular Tutorials
+Android Login and Registration Tutorial with PHP MySQL
+JSON Parsing in Android – Fetching From MySQL Database
+Android Volley Tutorial – Fetching JSON Data from URL
+Android Upload Image to Server using Volley Tutorial
+Retrofit Android Example – Fetching JSON from URL
+Retrieve Data From MySQL Database in Android using Volley
+Android TabLayout Example using ViewPager and Fragments
+Android Navigation Drawer Example using Fragments
+Firebase Cloud Messaging Tutorial for Android
+Android Upload Image using Android Upload Service
+ 
+
+
+ 
+
+About Simplified Coding
+Simplified Coding is a website for all the tech enthusiasts, who love to keep learning tech.
+We basically focus on producing quality contents for all developers to improve their skills and learn new things.
+Currently our focus is at Android Application Development. And you will find all the information related to Android Application Development here.
+Click Here if you want to know the man behind Simplified Coding.
+
+Quick Links
+Privacy Policy
+Disclaimer
+About
+Contact Me
+Categories
+Android Advance Android Application Development Android Beginners Android Intermediate Ionic Framework Tutorial JavaScript Kotlin Android Kotlin Tutorial Others PHP Advance PHP Tutorial ReactJS React Native
+© 2021 . All Rights Reserved . All Logos & Trademark Belongs To Their Respective Owners . Sitemap
+Scroll back to top
+android:name=".MainActivity">
